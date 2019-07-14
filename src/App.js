@@ -3,7 +3,7 @@ import FetchAPIData from './FetchAPIData';
 
 const App = () => {
   const [query, setQuery] = useState('batman');
-  const [{ data, loading, error}, doFetch] = FetchAPIData();
+  const [{ data, loading, error}, doFetch] = FetchAPIData([]);
   const API_KEY = '4a3b711b'
   return(
     <div>

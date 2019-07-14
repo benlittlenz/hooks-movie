@@ -1,36 +1,56 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useReducer} from 'react';
 import axios from 'axios';
 
-const FetchAPIData = () => {
-    const API_KEY = '4a3b711b'
+const dataFetch = (state, action) => {
+    switch(action.type){
+        case 'FETCH_INIT':
+            return {
+                ...state,
+                isLoading: true,
+                hasError: false
+            }
+        case 'FETCH_SUCCESS':
+            return {
+                ...state,
+                isLoading: false,
+                hasError: false,
+                data: action.payload
+            }
+        case 'FETCH_ERROR':
+            return {
+                ...state,
+                isLoading: false,
+                hasError: true,
+            }
+        default:
+            throw new Error();
+    }
+}
 
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+const FetchAPIData = (initalData) => {
+    const API_KEY = '4a3b711b'
     const [url, setUrl] = useState(`https://www.omdbapi.com/?s=${"batman"}&apikey=${API_KEY}`);
-    const [error, setError] = useState(false);
+    const [state, dispatch] = useReducer(dataFetch, {
+        isLoading: false, 
+        hasError: false,
+        data: initalData
+    })
 
     useEffect(() => {
     const fetchData = async () => {
-        setLoading(true);
-        setError(false);
-
+        dispatch({ type: 'FETCH_INIT' });
         try {
             const result = await axios(url)
-            setData(result.data.Search);
+            dispatch({ type: 'FETCH_SUCCESS', payload: result.data.Search })
         } catch(err) {
-            setError(true);
+            dispatch({ type: 'FETCH_ERROR' })
         }
     }
     fetchData()
-    setLoading(false);
 
   }, [url]);
 
-  return [{
-      data,
-      loading,
-      error
-  }, setUrl]
+  return [state, setUrl]
 }
 
 export default FetchAPIData
